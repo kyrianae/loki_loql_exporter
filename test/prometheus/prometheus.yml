@@ -10,3 +10,8 @@ scrape_configs:
     static_configs:
       - targets:
         - loki_exporter:9524
+  - job_name: 'logql_exporter'
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+        - loki_logql_exporter:9101
