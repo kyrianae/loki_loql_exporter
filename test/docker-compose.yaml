@@ -1,0 +1,67 @@
+version: "3"
+
+networks:
+  loki:
+
+services:
+  loki:
+    image: grafana/loki:master
+    ports:
+      - "3100:3100"
+        #    volumes:
+        #      - $PWD:/etc/loki
+        #    command:
+        #      -config.file=/etc/loki/loki.yaml
+    networks:
+      - loki
+
+  promtail:
+    image: grafana/promtail:latest
+    #make-images-static-26a87c9
+    volumes:
+      - $PWD/promtail:/etc/promtail
+      - $PWD/log:/var/log:ro
+    command:
+      -config.file=/etc/promtail/promtail.yaml
+    networks:
+      - loki
+
+  grafana:
+    image: grafana/grafana:master
+    ports:
+      - "3000:3000"
+    environment:
+      GF_EXPLORE_ENABLED: "true"
+    networks:
+      - loki
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - $PWD/prometheus:/etc/prometheus
+    command:
+      --config.file=/etc/prometheus/prometheus.yml
+    networks:
+      - loki
+ 
+  log_generator:
+    image: debian:latest
+    environment:
+      log_file: /var/log/test_extract.log
+    volumes:
+      - $PWD/log_generator/writer.sh:/writer.sh
+      - $PWD/log:/var/log
+    command: /writer.sh
+
+  loki_exporter:
+    image: ricoberger/loki_exporter
+    ports:
+      - "9524:9524"
+    volumes:
+      - $PWD/loki_exporter:/etc/loki_exporter
+    command:
+      -config.file=/etc/loki_exporter/loki_exporter.yml
+    networks:
+      - loki

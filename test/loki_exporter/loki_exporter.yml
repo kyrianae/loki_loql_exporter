@@ -1,0 +1,50 @@
+# ======================== loki_exporter configuration =========================
+#
+# The loki_exporter is a Prometheus exporter for Loki. Loki is a
+# horizontally-scalable, highly-available, multi-tenant log aggregation system
+# from the creators of Grafana. The loki_exporter runs queries against the Loki
+# API and returns the number of entries for each stream. This exporter is
+# designed to detect critical log events, where the results can be used to
+# create alerts in Prometheus.
+#
+# ------------------------------------ Loki ------------------------------------
+#
+loki:
+  listenAddress: http://loki:3100
+  basicAuth:
+    enabled: false
+    username:
+    password:
+#
+# ---------------------------------- Metrics -----------------------------------
+#
+metrics:
+  labels: true
+  labelValues: true
+  queries: true
+#
+# ---------------------------------- Queries -----------------------------------
+#
+queries:
+  # - name: varlogs
+  #   query: '{job="varlogs"} |= "error"'
+  #   limit: 1000
+  #   start: -72h
+  #   end: 24h
+  #   direction:
+  - name: id_1
+    query: '{filename="/var/log/test_extract.log"} |~ "id1"'
+    limit: 1000
+    start: -5m
+    end: 0s
+    direction:      
+  - name: extracted
+    query: 'max_over_time(
+{filename="/var/log/test_extract.log"}
+| regexp "(?P<id>^\\S+) (?P<value>\\d+)" 
+| unwrap value | __error__="" [5s] 
+)'
+    limit: 1000
+    start: -5m
+    end: 0s
+    direction:    
