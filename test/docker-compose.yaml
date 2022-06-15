@@ -65,3 +65,12 @@ services:
       -config.file=/etc/loki_exporter/loki_exporter.yml
     networks:
       - loki
+
+  loki_logql_exporter:
+    image: loki_logql_exporter:dev
+    ports:
+      - "9101:9101"
+    volumes:
+      - $PWD/loki_logql_exporter/loki_exporter.yml:/loki_logql_exporter/loki_exporter.yml
+    networks:
+      - loki
