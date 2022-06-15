@@ -1,0 +1,33 @@
+loki:
+  url: http://127.0.0.1:3100
+#  disable_ssl: True
+exporter:
+  port: 9101
+#  certificate: ....
+#  user:
+#  password:
+metrics:
+  - field: random_value
+    description: structured data random value exracted from logs with loki
+    query: |
+      max_over_time(
+        {filename="/var/log/test_extract.log"}|
+        regexp "(?P<id>.+) (?P<value>.+)"|
+        unwrap value |
+        __error__="" [10m]
+        )
+    limit: 10
+    time_window: 0
+    step: 15
+  - field: id1_value_only
+    description: structured data random value exracted from logs with loki
+    query: |
+      max_over_time(
+        {filename="/var/log/test_extract.log"}|
+        regexp "(?P<id>id1) (?P<value>.+)"|
+        unwrap value |
+        __error__="" [10m]
+        )
+    limit: 10
+    time_window: 60
+    step: 15
